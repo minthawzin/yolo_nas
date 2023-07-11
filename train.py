@@ -16,7 +16,7 @@ def main():
     dataloader.visualiseOriginalDataset( dataloader.train_dataset )
 
     # Model Initialiser *
-    trainer = Trainer(experiment_name="crowdhuman_datasaet", ckpt_root_dir="./content/sg_checkpoints_dir/")
+    trainer = Trainer(experiment_name="crowdhuman_dataset", ckpt_root_dir="./content/sg_checkpoints_dir/")
     net     = models.get("yolo_nas_s", num_classes=len( CLASS_NAME )+1  , pretrained_weights='coco' )
     trainer.train(model=net, training_params=train_params, train_loader=dataloader.train_dataloader, valid_loader=dataloader.valid_dataloader)
 
