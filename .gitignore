@@ -1,3 +1,7 @@
 datasets/
 weights/
 *__pycache__/
+content/
+crowdhuman_dataset/
+output/
+test_videos/
