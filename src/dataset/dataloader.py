@@ -30,7 +30,7 @@ class DatasetLoader:
     def getTransforms( self, mode='train' ):
         if mode == 'train':
             transforms=[
-                #DetectionMosaic(prob=1., input_dim=( self.input_img_shape, self.input_img_shape)),
+                DetectionMosaic(prob=1., input_dim=( self.input_img_shape, self.input_img_shape)),
                 DetectionRandomAffine(degrees=0., scales=(0.5, 1.5), shear=0.,
                                     target_size=( self.input_img_shape, self.input_img_shape),
                                     filter_box_candidates=False, border_value=128),
