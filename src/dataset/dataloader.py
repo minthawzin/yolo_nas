@@ -6,9 +6,10 @@ from super_gradients.training import dataloaders
 from super_gradients.training.datasets.datasets_utils import worker_init_reset_seed
 from super_gradients.training.transforms.transforms import DetectionTransform, DetectionTargetsFormatTransform, DetectionTargetsFormat
 from super_gradients.training.datasets.data_formats.default_formats import XYXY_LABEL
-import cv2, random, os
+import cv2, random, os, copy
 import numpy as np
 import matplotlib.pyplot as plt
+from .image_utils import addBboxToImage, CXCY2XYXY
 
 CLASS_COLORS = [(0,255,0),(0,0,255),(255,0,0)]
 
@@ -29,7 +30,7 @@ class DatasetLoader:
     def getTransforms( self, mode='train' ):
         if mode == 'train':
             transforms=[
-                DetectionMosaic(prob=1., input_dim=( self.input_img_shape, self.input_img_shape)),
+                #DetectionMosaic(prob=1., input_dim=( self.input_img_shape, self.input_img_shape)),
                 DetectionRandomAffine(degrees=0., scales=(0.5, 1.5), shear=0.,
                                     target_size=( self.input_img_shape, self.input_img_shape),
                                     filter_box_candidates=False, border_value=128),
@@ -64,11 +65,9 @@ class DatasetLoader:
 
         return yolo_dataset
 
-    def visualiseOriginalDataset( self, dataset, num_plots=3, num_images=9, img_per_row=3, output_dir="./output/visualise/"):
+    def visualiseOriginalDataset( self, data_loader, num_plots=3, num_images=9, img_per_row=3, output_dir="./output/visualise/"):
 
         os.makedirs( output_dir, exist_ok=True )
-
-        target_transformFormat = DetectionTargetsFormatTransform( input_format=dataset.original_target_format, output_format=XYXY_LABEL )
 
         for plot_i in range( num_plots ):
             fig = plt.figure( figsize=(10,10) )
@@ -77,8 +76,8 @@ class DatasetLoader:
             image_row_list = []
             overall_image  = []
             for img_i, _ in enumerate(range( num_images+1 )):
-                random_index = random.randint(0, dataset.n_available_samples )
-                sample = dataset.get_sample( random_index )
+                random_index = random.randint(0, data_loader.dataset.n_available_samples )
+                sample = data_loader.dataset.get_sample( random_index )
                 image, targets = sample['image'], sample['target']
                 if img_i % img_per_row != 0 or img_i == 0:
                     for target in targets:
@@ -100,6 +99,61 @@ class DatasetLoader:
             overall_image = cv2.vconcat( overall_image )
             output_path   = f"{output_dir}/{plot_i}_original.png"
             cv2.imwrite( output_path, overall_image )
+
+    def visualiseAugmentedDataset( self, data_loader, num_plots=3, num_images=9, img_per_row=3, output_dir='./output/visualise/'):
+        os.makedirs( output_dir, exist_ok=True )
+
+        target_transformFormat = DetectionTargetsFormatTransform( input_format=data_loader.dataset.output_target_format, output_format=XYXY_LABEL )
+
+        for plot_i in range( num_plots ):
+            fig = plt.figure( figsize=(10,10) )
+            n_subplot = int( np.ceil( num_images ** 0.5))
+
+            image_row_list = []
+            overall_image  = []
+            for img_i, _ in enumerate(range( num_images+1 )):
+                random_index = random.randint(0, data_loader.dataset.n_available_samples )
+                image, targets, *_ = data_loader.dataset[ random_index ] 
+                image = image * 255
+                image = image.transpose( 1, 2, 0 ).copy()
+                image = image.astype( np.uint8 )
+                sample = target_transformFormat( {"image": image, "target": targets })
+                output_image = copy.copy( sample['image'])
+
+                if img_i % img_per_row != 0 or img_i == 0:
+                    for target in targets:
+                        class_index, xc, yc, width, height = target
+
+                        if int(xc) == 0 and int(yc) == 0 and int(width) == 0 and int(height) == 0:
+                            continue
+                        
+                        x1,y1,x2,y2 = CXCY2XYXY( xc, yc, width, height )
+                        cv2.rectangle( output_image, (int(x1), int(y1)), (int(x2), int(y2)), CLASS_COLORS[int(class_index)], 2 )
+                    output_image = cv2.resize( output_image, ( self.input_img_shape, int(self.input_img_shape/2) ))
+                    image_row_list.append( output_image )
+                else:
+                    
+                    combined_image  = cv2.hconcat( image_row_list )
+                    overall_image.append( combined_image )
+                    image_row_list = []
+                    for target in targets:
+                        class_index, xc, yc, width, height = target
+
+                        if int(xc) == 0 and int(yc) == 0 and int(width) == 0 and int(height) == 0:
+                            continue
+                            
+                        x1,y1,x2,y2 = CXCY2XYXY( xc, yc, width, height )
+
+                        cv2.rectangle( output_image, (int(x1), int(y1)), (int(x2), int(y2)), CLASS_COLORS[int(class_index)], 2 )
+                    output_image = cv2.resize( output_image, ( self.input_img_shape, int(self.input_img_shape/2) ))
+                    image_row_list.append( output_image )
+             
+
+            overall_image = cv2.vconcat( overall_image )
+
+            output_path   = f"{output_dir}/{plot_i}_augmented.png"
+            cv2.imwrite( output_path, overall_image )
+
 
     def getParams( self, mode='train' ):
         if mode=='train':

@@ -13,15 +13,16 @@ def main():
     CLASS_NAME = ['Human']
     # Dataset Loading #
     dataloader = DatasetLoader( data_dir='./datasets/', class_names=CLASS_NAME, input_img=640 )
-    dataloader.visualiseOriginalDataset( dataloader.train_dataset )
-
+    dataloader.visualiseOriginalDataset( dataloader.train_dataloader )
+    dataloader.visualiseAugmentedDataset( dataloader.train_dataloader )
+    
     # Model Initialiser *
     trainer = Trainer(experiment_name="crowdhuman_dataset", ckpt_root_dir="./content/sg_checkpoints_dir/")
     net     = models.get("yolo_nas_s", num_classes=len( CLASS_NAME )+1 )
 
     # train parameters
     train_params = getTrainingParams( CLASS_NAME )
-    trainer.train(model=net, training_params=train_params, train_loader=dataloader.train_dataloader, valid_loader=dataloader.valid_dataloader)
+    #trainer.train(model=net, training_params=train_params, train_loader=dataloader.train_dataloader, valid_loader=dataloader.valid_dataloader)
 
 if __name__ == "__main__":
     main()
