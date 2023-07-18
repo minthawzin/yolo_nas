@@ -1,36 +1,33 @@
-import os, requests, torch, cv2
-from PIL import Image
-import matplotlib.pyplot as plt
-import numpy as np
-from super_gradients.training import Trainer
+import torch, cv2
 from super_gradients.common.object_names import Models
 from super_gradients.training import models
-from super_gradients.training.processing import ComposeProcessing
-from super_gradients.training.models.detection_models.yolo_base import YoloPostPredictionCallback
 from src.dataset.image_utils import *
 
 CLASS_NAMES          = ['Human']
 INPUT_SIZE           = 640
 CONFIDENCE_THRESHOLD = 0.5
+YOLO_NAS_MODEL_VER   = "YOLO_NAS_S" # M -> MEDIUM, L -> LARGE , ETC... 
 
 # Model Initialiser
 def loadModel( model_path ):
-    input_model_path = './weights/average_model.pth'
-    loaded_model     = models.get( Models.YOLO_NAS_S, num_classes=len(CLASS_NAMES)+1, checkpoint_path=input_model_path )
+    """
+    Function load YOLONAS model
+    """
+    input_model_path = model_path
+    loaded_model     = models.get( YOLO_NAS_MODEL_VER, num_classes=len(CLASS_NAMES)+1, checkpoint_path=input_model_path )
     loaded_model.to('cuda')
     loaded_model.eval()
     return loaded_model
 
 # Input image 
 def loadImage( image_path ):
-    input_image_path = './test_videos/test.jpeg'
+    input_image_path = image_path
     original_image   = cv2.imread( input_image_path )
     processed_image  = preprocessCV( original_image, INPUT_SIZE )
     return processed_image
 
+# Predict results
 def inference( loaded_model, processed_image ):
-
-    # Predict results
     with torch.no_grad():
         model_output = next( loaded_model.predict( processed_image, conf=CONFIDENCE_THRESHOLD )._images_prediction_lst )
         image              = model_output.image
