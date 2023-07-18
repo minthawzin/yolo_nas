@@ -9,7 +9,7 @@ The repository is currently implemented using docker environment. Dockerfile is 
 ```
 git clone https://github.com/minthawzin/yolo_nas.git
 cd yolo_nas
-build -t yolo_nas .
+docker build -t yolo_nas .
 ```
 
 ### Training on custom dataset
