@@ -19,16 +19,20 @@ docker build -t yolo_nas .
 The current dataset format is the same as YOLOv5 data format that is used for training purposes.
 
 ```
-|root_dataset_dir 
-|_____train
-|__________images
-|_______________1.jpg
-|_______________2.jpg
-|__________labels
-|_______________1.txt
-|_______________2.txt
-|_____valid
-|___________...
+├── train
+│   ├── images
+│   │   ├── 273271,1a02900084ed5ae8.jpg
+│   │   └── 273271,1b9eb00089049cd6.jpg
+│   └── labels
+│       ├── 273271,1a02900084ed5ae8.txt
+│       └── 273271,1b9eb00089049cd6.txt
+└── valid
+    ├── images
+    │   ├── 273271,1a02900084ed5ae8.jpg
+    │   └── 273271,1b9eb00089049cd6.jpg
+    └── labels
+        ├── 273271,1a02900084ed5ae8.txt
+        └── 273271,1b9eb00089049cd6.txt
 ```
 
 After preparing the dataset, the training script can be readily run for training the model

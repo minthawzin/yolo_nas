@@ -1,4 +1,4 @@
-# This is the DockerFile used for ITSP REID Phase-3 system #
+# This is the DockerFile used for YOLO NAS System #
 # This environment make use of Ubuntu20.04 with Cuda 11.1  #
 
 FROM nvidia/cuda:11.1.1-devel-ubuntu20.04
