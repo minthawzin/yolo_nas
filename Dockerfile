@@ -1,7 +1,7 @@
 # This is the DockerFile used for YOLO NAS System #
 # This environment make use of Ubuntu20.04 with Cuda 11.1  #
 
-FROM nvidia/cuda:11.1.1-devel-ubuntu20.04
+FROM nvcr.io/nvidia/tensorrt:22.10-py3
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 

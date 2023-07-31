@@ -76,7 +76,7 @@ class DatasetLoader:
             image_row_list = []
             overall_image  = []
             for img_i, _ in enumerate(range( num_images+1 )):
-                random_index = random.randint(0, data_loader.dataset.n_available_samples )
+                random_index = random.randint(0, data_loader.dataset.n_available_samples - 1 )
                 sample = data_loader.dataset.get_sample( random_index )
                 image, targets = sample['image'], sample['target']
                 if img_i % img_per_row != 0 or img_i == 0:
@@ -112,7 +112,7 @@ class DatasetLoader:
             image_row_list = []
             overall_image  = []
             for img_i, _ in enumerate(range( num_images+1 )):
-                random_index = random.randint(0, data_loader.dataset.n_available_samples )
+                random_index = random.randint(0, data_loader.dataset.n_available_samples - 1)
                 image, targets, *_ = data_loader.dataset[ random_index ] 
                 image = image * 255
                 image = image.transpose( 1, 2, 0 ).copy()

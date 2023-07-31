@@ -2,7 +2,7 @@ from super_gradients.training.losses import PPYoloELoss
 from super_gradients.training.metrics import DetectionMetrics_050
 from super_gradients.training.models.detection_models.pp_yolo_e import PPYoloEPostPredictionCallback
 
-def getTrainingParams( class_names ):
+def getTrainingParams( class_names, epochs=100 ):
     train_params = {
         "warmup_initial_lr": 1e-6,
         "initial_lr": 5e-4,
@@ -15,7 +15,7 @@ def getTrainingParams( class_names ):
         "optimizer_params": {"weight_decay": 0.0001},
         "ema": True,
         "ema_params": {"decay": 0.9, "decay_type": "threshold"},
-        "max_epochs": 100,
+        "max_epochs": epochs,
         "mixed_precision": True,
         "loss": PPYoloELoss(use_static_assigner=False, num_classes=len( class_names ), reg_max=16),
         "valid_metrics_list": [
